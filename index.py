@@ -25,21 +25,24 @@ def create_AKAZE_descriptor(nfeatures=500):
 
 
 def create_BRISK_descriptor(nfeatures=500):
-    alg = cv2.BRISK_create(nfeatures=nfeatures)
+    alg = cv2.BRISK_create(thresh=100)
     size = 64
     name = "BRISK"
     return alg, size, name, nfeatures
 
 
 def predict(frame, model, descriptor):
-    k, d = descriptor.alg.detectAndCompute(frame, None)
-    dest_matches = np.zeros(
-        (descriptor.nfeatures, descriptor.size)
-    )
-    for i in range(min(len(d), len(dest_matches))):
-        dest_matches[i, :] = d[i, :]
-    pure_data = dest_matches.ravel() / 256
-    return model.predict(np.expand_dims(pure_data, axis=0))
+    try:
+        k, d = descriptor.alg.detectAndCompute(frame, None)
+        dest_matches = np.zeros(
+            (descriptor.nfeatures, descriptor.size)
+        )
+        for i in range(min(len(d), len(dest_matches))):
+            dest_matches[i, :] = d[i, :]
+        pure_data = dest_matches.ravel() / 256
+        return model.predict(np.expand_dims(pure_data, axis=0))
+    except:
+        return 0
 
 
 def process_video(model, descriptor, video_path, output_size, fps=30):
@@ -168,11 +171,12 @@ def start_recording(model, descriptor):
 
 def main():
     classifier = MultinomialNB()
-    decriptor_alg, decriptor_size, decriptor_name, decriptor_nfeatures = create_ORB_descriptor()
+    decriptor_alg, decriptor_size, decriptor_name, decriptor_nfeatures = create_BRISK_descriptor()
     descriptor = Descriptor(decriptor_alg, decriptor_size,
                             decriptor_name, decriptor_nfeatures)
     model = fit(classifier, descriptor, "contain", "not_contain")
-    # process_video(model, descriptor, "data/contains.mp4", (640, 480), fps=30)
+
+    # process_video(model, descriptor, "data/test.mp4", (640, 480), fps=30)
 
     start_recording(model, descriptor)
 
