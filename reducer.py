@@ -1,4 +1,4 @@
-import cv2
+from cv2 import cv2
 import os
 
 vidcap = cv2.VideoCapture("data/contains.mp4")
