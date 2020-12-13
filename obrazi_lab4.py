@@ -3,9 +3,10 @@ import numpy as np
 import pickle
 from os import listdir
 from os.path import isfile, join
-
+import time
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+import collections
 
 from abc import ABC, abstractmethod
 
@@ -169,7 +170,19 @@ def main():
     model = fit(classifier, descriptor, "contain", "not_contain")
     
     start_recording(model, descriptor)
-    
+    class FPS:
+     def __init__(self,avarageof=50):
+        self.frametimestamps = collections.deque(maxlen=avarageof)
+     def __call__(self):
+        self.frametimestamps.append(time.time())
+        if(len(self.frametimestamps) > 1):
+            return len(self.frametimestamps)/(self.frametimestamps[-1]-self.frametimestamps[0])
+        else:
+            return 0.0
+    fps = FPS()
+    for i in range(100):
+     time.sleep(0.1)
+     print("FPS", fps())
     
    
 
