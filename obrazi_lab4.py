@@ -97,14 +97,17 @@ def start_recording(model, descriptor):
     override_image = cv2.imread("photo.jpg")
     height, width, _ = replaced_img.shape
     override_image = cv2.resize(override_image, (width, height))
-
+    
     k, d = descriptor.alg.detectAndCompute(replaced_img, None)
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     out = cv2.VideoWriter( "out.avi", fourcc, 30, (640, 480))
     bf = cv2.BFMatcher()
+    
     while True:
         
-       
+        start_time=time.time()
+        
+        
         success, imgWebcam = cap.read()
         imgAug = imgWebcam.copy()
         k2, d2 = descriptor.alg.detectAndCompute(imgAug, None)
@@ -153,11 +156,15 @@ def start_recording(model, descriptor):
             pass  
         out.write(imgAug)
         cv2.imshow("AugmentedReality", imgAug)
-        
+        print("fps", 1.0/(time.time()-start_time))
+       
         if cv2.waitKey(1) & 0xFF == ord("q"):
-           break 
-
-
+            break 
+    
+     
+        
+    
+      
 
 
     
@@ -170,19 +177,7 @@ def main():
     model = fit(classifier, descriptor, "contain", "not_contain")
     
     start_recording(model, descriptor)
-    class FPS:
-     def __init__(self,avarageof=50):
-        self.frametimestamps = collections.deque(maxlen=avarageof)
-     def __call__(self):
-        self.frametimestamps.append(time.time())
-        if(len(self.frametimestamps) > 1):
-            return len(self.frametimestamps)/(self.frametimestamps[-1]-self.frametimestamps[0])
-        else:
-            return 0.0
-    fps = FPS()
-    for i in range(100):
-     time.sleep(0.1)
-     print("FPS", fps())
+    
     
    
 
